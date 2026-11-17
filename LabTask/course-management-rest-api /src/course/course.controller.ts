@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -16,7 +15,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { mkdirSync } from 'fs';
 
 import { CourseService } from './course.service.js';
 import { CreateCourseDto } from './dto/create-course.dto.js';
@@ -68,27 +66,21 @@ export class CourseController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: (req, file, callback) => {
-          mkdirSync('uploads', { recursive: true });
-          callback(null, 'uploads');
-        },
-
+        destination: './uploads',
         filename: (req, file, callback) => {
-          const uniqueName =
-            Date.now() +
-            '-' +
+          const fileName =
+            Date.now() + '-' +
             Math.round(Math.random() * 1e9) +
             extname(file.originalname);
 
-          callback(null, uniqueName);
+          callback(null, fileName);
         },
       }),
 
       fileFilter: (req, file, callback) => {
-        const allowedExtensions =
-          /\.(jpg|jpeg|png|pdf)$/i;
+        const allowedTypes = /\.(jpg|jpeg|png|pdf)$/i;
 
-        if (!allowedExtensions.test(extname(file.originalname))) {
+        if (!allowedTypes.test(extname(file.originalname))) {
           return callback(
             new BadRequestException(
               'Only JPG, JPEG, PNG and PDF files are allowed',

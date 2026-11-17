@@ -1,22 +1,25 @@
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto.js';
 import { UpdateCourseDto } from './dto/update-course.dto.js';
 
-interface Course {
-  id: number;
-  name: string;
-  code: string;
-  instructor: string;
-  credits: number;
-  description?: string;
-}
-
 @Injectable()
 export class CourseService {
-  private courses: Course[] = [];
+  private courses: {
+    id: number;
+    name: string;
+    code: string;
+    instructor: string;
+    credits: number;
+    description?: string;
+  }[] = [];
+
   private nextId = 1;
 
+  // GET ALL COURSES
   getAllCourses() {
     return {
       message: 'All courses fetched successfully',
@@ -24,8 +27,11 @@ export class CourseService {
     };
   }
 
+  // GET COURSE BY ID
   getCourseById(id: string) {
-    const course = this.courses.find((c) => c.id === Number(id));
+    const course = this.courses.find(
+      (course) => course.id === Number(id),
+    );
 
     if (!course) {
       throw new NotFoundException('Course not found');
@@ -34,12 +40,12 @@ export class CourseService {
     return {
       message: 'Course fetched successfully',
       id,
-      data: course,
     };
   }
 
+  // CREATE COURSE
   createCourse(dto: CreateCourseDto) {
-    const course: Course = {
+    const course = {
       id: this.nextId++,
       ...dto,
     };
@@ -52,8 +58,11 @@ export class CourseService {
     };
   }
 
+  // UPDATE COURSE
   updateCourse(id: string, dto: UpdateCourseDto) {
-    const course = this.courses.find((c) => c.id === Number(id));
+    const course = this.courses.find(
+      (course) => course.id === Number(id),
+    );
 
     if (!course) {
       throw new NotFoundException('Course not found');
@@ -68,8 +77,11 @@ export class CourseService {
     };
   }
 
+  // PATCH COURSE
   patchCourse(id: string, dto: UpdateCourseDto) {
-    const course = this.courses.find((c) => c.id === Number(id));
+    const course = this.courses.find(
+      (course) => course.id === Number(id),
+    );
 
     if (!course) {
       throw new NotFoundException('Course not found');
@@ -84,9 +96,10 @@ export class CourseService {
     };
   }
 
+  // DELETE COURSE
   deleteCourse(id: string) {
     const index = this.courses.findIndex(
-      (c) => c.id === Number(id),
+      (course) => course.id === Number(id),
     );
 
     if (index === -1) {
@@ -101,18 +114,17 @@ export class CourseService {
     };
   }
 
+  // UPLOAD COURSE MATERIAL
   uploadCourseMaterial(
     id: string,
     file: Express.Multer.File,
   ) {
-    const course = this.courses.find((c) => c.id === Number(id));
+    const course = this.courses.find(
+      (course) => course.id === Number(id),
+    );
 
     if (!course) {
       throw new NotFoundException('Course not found');
-    }
-
-    if (!file) {
-      throw new Error('File is required');
     }
 
     return {
